@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+
+<head>
+    <title>Register - MyCityGov</title>
+</head>
+
+<body>
+
+<header layout:fragment="header">
+    <h1>MyCityGov <small class="text-muted">/ Registration</small></h1>
+</header>
+
+<section layout:fragment="main">
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="p-4 border rounded shadow-sm bg-white">
+
+                <h4 class="mb-3 text-center">Finalize Registration</h4>
+
+                <div class="alert alert-success text-center mb-4">
+                    <i class="bi bi-check-circle-fill"></i> Identity verified via <strong>TaxisNet</strong>
+                </div>
+
+                <form th:action="@{/register}" method="post" th:object="${user}">
+
+                    <input type="hidden" th:field="*{govToken}">
+
+                    <div class="alert alert-danger text-center" th:if="${errorMessage}">
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <div class="p-3 mb-4 bg-light border rounded">
+                        <h6 class="text-muted border-bottom pb-2 mb-3">Verified Personal Information</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label fw-bold text-muted">First Name</label>
+                                <input type="text" id="firstName" th:field="*{firstName}"
+                                       class="form-control bg-secondary-subtle" readonly />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label fw-bold text-muted">Last Name</label>
+                                <input type="text" id="lastName" th:field="*{lastName}"
+                                       class="form-control bg-secondary-subtle" readonly />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="afm" class="form-label fw-bold text-muted">AFM (Tax Number)</label>
+                            <input type="text" id="afm" th:field="*{afm}"
+                                   class="form-control bg-secondary-subtle" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="amka" class="form-label fw-bold text-muted">AMKA</label>
+                            <input type="text" id="amka" th:field="*{amka}"
+                                   class="form-control bg-secondary-subtle" readonly />
+                        </div>
+                    </div>
+
+                    <h6 class="text-muted border-bottom pb-2 mb-3">Account Details</h6>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">Email Address</label>
+                        <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="name@example.com" required />
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label fw-bold">Mobile Phone</label>
+                        <input type="tel" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" placeholder="+30 69..." />
+                        <div class="text-danger small mt-1" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+                    </div>
+                    <div class="mb-4">
+                    <label for="password" class="form-label fw-bold">Create Password</label>
+                    <input type="password" id="password" th:field="*{password}" class="form-control" placeholder="Create a strong password" required />
+                    <div class="text-danger small mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="m-0 text-muted small">
+                            By clicking Register, you confirm that your TaxisNet data is correct.
+                        </p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

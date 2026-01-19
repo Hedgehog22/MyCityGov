@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="el"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+<head><title>My Appointments</title></head>
+<body>
+<section layout:fragment="main">
+    <div class="container py-5">
+        <h2 class="mb-4">My Appointments</h2>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <div class="table-responsive shadow-sm bg-white rounded">
+            <table class="table table-striped mb-0">
+                <thead class="bg-primary text-white">
+                <tr>
+                    <th>Ref Code</th>
+                    <th>Department</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="app : ${appointments}">
+                    <td class="font-monospace" th:text="${app.referenceCode}">REF-123</td>
+
+                    <td th:text="${app.slot.employee?.department?.name ?: 'Без департаменту'}">KEP</td>
+
+                    <td>
+                        <div th:text="${#temporals.format(app.slot.date, 'dd-MM-yyyy')}">Date</div>
+                        <small class="text-muted" th:text="${app.slot.startTime} + ' - ' + ${app.slot.endTime}">Time</small>
+                    </td>
+
+                    <td>
+                        <span th:if="${app.status.name() == 'BOOKED'}" class="badge bg-success">Booked</span>
+                        <span th:if="${app.status.name() == 'COMPLETED'}" class="badge bg-secondary">Completed</span>
+                        <span th:if="${app.status.name() == 'CANCELLED'}" class="badge bg-danger">Cancelled</span>
+                    </td>
+
+                    <th>Action</th>
+
+                    <td>
+                        <div th:if="${app.status.name() == 'BOOKED'}">
+
+                            <form th:action="@{'/citizen/appointments/' + ${app.id} + '/cancel'}" method="post"
+                                  onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </button>
+                            </form>
+
+                        </div>
+
+                        <span th:if="${app.status.name() != 'BOOKED'}" class="text-muted small">
+                            -
+                        </span>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(appointments)}">
+                    <td colspan="4" class="text-center py-4">You have no upcoming appointments.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <a th:href="@{/citizen/dashboard}" class="btn btn-outline-secondary">Back to Dashboard</a>
+            <a th:href="@{/citizen/appointments}" class="btn btn-primary float-end">Book New Appointment</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

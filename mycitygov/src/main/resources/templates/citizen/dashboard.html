@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="el"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+
+<head>
+    <title>Citizen Dashboard - MyCityGov</title>
+</head>
+
+<body>
+
+<section layout:fragment="main">
+    <div class="container py-5">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2>Καλωσήρθατε, <span th:text="${#authentication.name}">User</span></h2>
+                <p class="text-muted">Submit a new request or check the status of existing ones.</p>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">New Request</h5>
+                    </div>
+                    <div class="card-body">
+
+                        <form th:action="@{/citizen/requests/new}" method="post"
+                              th:object="${requestForm}" enctype="multipart/form-data">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Select Service</label>
+                                <select class="form-select" th:field="*{requestTypeId}"
+                                        th:classappend="${#fields.hasErrors('requestTypeId')} ? 'is-invalid' : ''">
+                                    <option value="" disabled selected>Choose a service...</option>
+                                    <option th:each="type : ${requestTypes}"
+                                            th:value="${type.id}"
+                                            th:text="${type.name} + ' (SLA: ' + ${type.slaDays} + ' days)'">
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('requestTypeId')}" th:errors="*{requestTypeId}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Description</label>
+                                <textarea class="form-control" th:field="*{description}" rows="4"
+                                          placeholder="Describe your issue or request details..."
+                                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Attachment</label>
+                                <input type="file" class="form-control" th:field="*{attachment}"
+                                       accept=".pdf, .jpg, .jpeg, .png, application/pdf, image/jpeg, image/png">
+                                <div class="form-text text-muted">Supported formats: PDF, JPG, PNG. Max size: 5MB.</div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg">Submit Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-3 border-primary">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary">Appointments</h5>
+                        <p class="card-text small text-muted">
+                            Book an appointment with a department to visit in person.
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/citizen/appointments}" class="btn btn-primary">
+                                <i class="bi bi-calendar-plus"></i> Book New Appointment
+                            </a>
+
+                            <a th:href="@{/citizen/appointments/my}" class="btn btn-outline-primary">
+                                <i class="bi bi-list-check"></i> My Appointments
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">My History</h5>
+                        <p class="card-text">Track the status of your submitted requests.</p>
+                        <a th:href="@{/citizen/my-requests}" class="btn btn-outline-primary w-100">View My Requests</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

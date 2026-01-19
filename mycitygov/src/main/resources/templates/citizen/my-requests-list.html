@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="el"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+<head>
+    <title>My Request History</title>
+</head>
+<body>
+
+<section layout:fragment="main">
+    <div class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>My Request History</h2>
+            <a th:href="@{/citizen/dashboard}" class="btn btn-outline-secondary">
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div th:if="${#lists.isEmpty(requests)}" class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="bi bi-folder2-open display-4 text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No requests found.</h4>
+                    <p>You haven't submitted any requests yet.</p>
+                    <a th:href="@{/citizen/dashboard}" class="btn btn-primary mt-3">
+                        Create New Request
+                    </a>
+                </div>
+
+                <div th:if="${not #lists.isEmpty(requests)}" class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th style="width: 25%;">Description</th> <th>Status</th>
+                            <th>Staff Comment</th>
+                            <th>Action</th> </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="req : ${requests}">
+
+                            <td>
+                                <span th:text="${#temporals.format(req.submissionDate, 'dd/MM/yyyy')}">Date</span>
+                                <br>
+                                <small class="text-muted" th:text="${#temporals.format(req.submissionDate, 'HH:mm')}">Time</small>
+                            </td>
+
+                            <td>
+                                <span class="fw-bold" th:text="${req.requestType?.name}">Type</span>
+                            </td>
+
+                            <td>
+                                <span th:text="${#strings.abbreviate(req.description, 40)}"
+                                      data-bs-toggle="tooltip"
+                                      th:title="${req.description}">Desc</span>
+                            </td>
+
+                            <td>
+                                <span th:class="'badge ' +
+                                      (${req.status?.name() == 'APPROVED'} ? 'bg-success' :
+                                      (${req.status?.name() == 'REJECTED'} ? 'bg-danger' :
+                                      (${req.status?.name() == 'PENDING_INFO'} ? 'bg-warning text-dark' : 'bg-info')))"
+                                      th:text="${req.status}">STATUS</span>
+                            </td>
+
+                            <td style="max-width: 200px;">
+                                <span th:if="${req.comments != null and !#strings.isEmpty(req.comments)}"
+                                      class="text-muted small fst-italic d-block text-truncate"
+                                      th:title="${req.comments}"
+                                      data-bs-toggle="tooltip">
+                                    <i class="bi bi-chat-left-text me-1"></i>
+                                    <span th:text="${req.comments}">Comment</span>
+                                </span>
+                                <span th:if="${req.comments == null or #strings.isEmpty(req.comments)}">-</span>
+                            </td>
+
+                            <td>
+                                <a th:if="${req.status?.name() == 'PENDING_INFO'}"
+                                   th:href="@{'/citizen/requests/' + ${req.id} + '/reply'}"
+                                   class="btn btn-warning btn-sm text-dark fw-bold shadow-sm">
+                                    <i class="bi bi-reply-fill"></i> Reply
+                                </a>
+
+                                <a th:if="${req.status?.name() == 'APPROVED' and req.resultDocumentKey != null}"
+                                   th:href="@{'/citizen/requests/' + ${req.id} + '/download-result'}"
+                                   class="btn btn-success btn-sm shadow-sm"
+                                   target="_blank">
+                                    <i class="bi bi-download"></i> Download Cert
+                                </a>
+
+                                <span th:if="${req.status?.name() != 'PENDING_INFO' and (req.status?.name() != 'APPROVED' or req.resultDocumentKey == null)}"
+                                      class="text-muted small">
+                                    -
+                                </span>
+                            </td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script layout:fragment="page-scripts">
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+</script>
+
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{base}">
+<head><title>Admin - Generate Slots</title></head>
+<body>
+
+<section layout:fragment="main">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">Slot Generator</h4>
+                    </div>
+                    <div class="card-body p-4">
+
+                        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+                        <form th:action="@{/admin/appointments/generate}" method="post">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">1. Select Department</label>
+                                <select id="deptSelect" class="form-select" onchange="filterEmployeesAndSetHours()">
+                                    <option value="" selected disabled>-- Choose Department --</option>
+                                    <option th:each="dept : ${departments}"
+                                            th:value="${dept.id}"
+                                            th:text="${dept.name}"
+                                            th:data-open="${dept.openTime}"
+                                            th:data-close="${dept.closeTime}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">2. Select Employee</label>
+                                <select id="employeeSelect" name="employeeId" class="form-select" required disabled>
+                                    <option value="" selected disabled>-- First select a department --</option>
+
+                                    <option th:each="emp : ${employees}"
+                                            th:value="${emp.id}"
+                                            th:text="${emp.firstName} + ' ' + ${emp.lastName}"
+                                            th:data-dept-id="${emp.department?.id}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <hr>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label class="form-label fw-bold">Start Date</label>
+                                    <input type="date" name="startDate" class="form-control" th:value="${defaultDate}" required>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label fw-bold">End Date</label>
+                                    <input type="date" name="endDate" class="form-control" th:value="${defaultDate}" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Working Hours</label>
+                                <div class="input-group">
+                                    <input type="time" id="startTime" name="startTime" class="form-control" required>
+                                    <span class="input-group-text">to</span>
+                                    <input type="time" id="endTime" name="endTime" class="form-control" required>
+                                </div>
+                                <div class="form-text text-muted">
+                                    Default hours are loaded from the department settings. You can modify them manually.
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Lunch Break (Optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Break Start</span>
+                                    <input type="time" name="breakStart" class="form-control">
+                                    <span class="input-group-text">Break End</span>
+                                    <input type="time" name="breakEnd" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" name="skipWeekends" id="skipWeekends" checked>
+                                <label class="form-check-label" for="skipWeekends">
+                                    Skip Weekends (Saturday & Sunday)
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 btn-lg">Generate Schedule</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow border-danger mt-5">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Clear Day</h5>
+                </div>
+                <div class="card-body">
+
+                    <form th:action="@{/admin/appointments/delete-day}" method="post">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Employee</label>
+                                <select name="employeeId" class="form-select" required>
+                                    <option th:each="emp : ${employees}"
+                                            th:value="${emp.id}"
+                                            th:text="${emp.firstName} + ' ' + ${emp.lastName}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label>Date to Clear</label>
+                                <input type="date" name="date" class="form-control" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-outline-danger w-100">Clear</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterEmployeesAndSetHours() {
+            const deptSelect = document.getElementById('deptSelect');
+            const empSelect = document.getElementById('employeeSelect');
+            const startTimeInput = document.getElementById('startTime');
+            const endTimeInput = document.getElementById('endTime');
+
+            //information about department (selected0
+            const selectedOption = deptSelect.options[deptSelect.selectedIndex];
+            const selectedDeptId = selectedOption.value;
+            const openTime = selectedOption.getAttribute('data-open');
+            const closeTime = selectedOption.getAttribute('data-close');
+
+
+            if (openTime) startTimeInput.value = openTime;
+            if (closeTime) endTimeInput.value = closeTime;
+
+
+            empSelect.disabled = false;
+            empSelect.value = "";
+
+            let hasVisibleEmployees = false;
+
+            for (let i = 0; i < empSelect.options.length; i++) {
+                const option = empSelect.options[i];
+                const empDeptId = option.getAttribute('data-dept-id');
+
+                if (option.value === "") continue;
+
+                if (empDeptId === selectedDeptId) {
+                    option.style.display = 'block';
+                    hasVisibleEmployees = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+
+            if (!hasVisibleEmployees) {
+                const defaultOpt = empSelect.querySelector('option[value=""]');
+                defaultOpt.text = "--No employees in this department--";
+            } else {
+                const defaultOpt = empSelect.querySelector('option[value=""]');
+                defaultOpt.text = "--Select Employee--";
+            }
+        }
+    </script>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+
+<head>
+    <title>Welcome to MyCityGov</title>
+</head>
+
+<body>
+
+<header layout:fragment="header">
+    <h1>MyCityGov</h1>
+    <h3>Your Digital Gateway to City Services</h3>
+</header>
+
+<section layout:fragment="main">
+
+    <div class="mb-4">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+             alt="City Hall Services"
+             style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 5px;" />
+    </div>
+
+    <div>
+        <p class="lead">
+            Welcome to <strong>MyCityGov</strong>, the unified platform designed to simplify interactions between citizens and the municipality.
+            No more waiting in long lines — submit requests for certificates, licenses, and permits from the comfort of your home.
+        </p>
+        <p>
+            Track the status of your applications in real-time, book appointments with city officials, and receive automated notifications.
+            For city employees, this platform provides a powerful dashboard to process requests efficiently, ensuring transparency and speed in public administration.
+        </p>
+    </div>
+
+    <div class="text-center mt-5">
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a th:href="@{/login}" class="btn btn-primary btn-lg px-4 gap-3">Log in</a>
+            <a th:href="@{/register}" class="btn btn-outline-secondary btn-lg px-4">Register</a>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

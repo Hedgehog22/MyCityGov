@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+
+<head>
+    <title>My Profile</title>
+</head>
+
+<body>
+<!--TO DO-->
+<header layout:fragment="header">
+    <h1>User Profile</h1>
+</header>
+
+<section layout:fragment="main">
+
+    <div th:if="${currentUser != null}">
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <img src="https://ui-avatars.com/api/?background=0D8ABC&color=fff&size=128&name=User"
+                                 th:src="@{'https://ui-avatars.com/api/?background=0D8ABC&color=fff&size=128&name=' + ${currentUser.fullName}}"
+                                 class="rounded-circle" alt="Avatar">
+                        </div>
+
+                        <h3 class="card-title" th:text="${currentUser.fullName}">User Name</h3>
+                        <p class="text-muted" th:text="${currentUser.email}">email@example.com</p>
+
+                        <div class="mb-2">
+                            <span class="badge bg-primary" th:text="${currentUser.role}">CITIZEN</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-md-8">
+
+                <div class="alert alert-success">
+                    <h4 class="alert-heading">Welcome back, <span th:text="${currentUser.fullName}">User</span>!</h4>
+                    <p>This is your personal dashboard for MyCityGov services.</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">New Request</h5>
+                                <p class="card-text">Submit a new application for certificates or report an issue.</p>
+                                <a href="/citizen/dashboard" class="btn btn-primary">Start Request</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">My History</h5>
+                                <p class="card-text">View the status of your previous applications.</p>
+                                <a href="/citizen/appointments/my" class="btn btn-outline-dark">View History</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${currentUser == null}" class="alert alert-warning">
+        User information is not available. Please <a th:href="@{/login}">log in</a> again.
+    </div>
+
+</section>
+
+</body>
+</html>

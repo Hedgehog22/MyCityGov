@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="el"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+
+<head>
+    <title>Admin Dashboard - MyCityGov</title>
+</head>
+
+<body>
+
+<header layout:fragment="header" class="bg-dark text-white p-4">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h3 mb-0">Admin Dashboard</h1>
+        </div>
+        <div>
+            <span class="badge bg-light text-dark">Admin Access</span>
+        </div>
+    </div>
+</header>
+
+<section layout:fragment="main">
+    <div class="container py-4">
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row mb-5">
+            <h4 class="mb-3 text-muted">Statistics</h4>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-start border-4 border-primary h-100">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-bold">Citizens</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${totalCitizens}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-start border-4 border-success h-100">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-bold">Requests</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${totalRequests}">0</div>
+                    </div>
+                </div>
+            </div>
+            <!--TO DO STATISTICS-->
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-start border-4 border-info h-100">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-bold">Services</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${activeServices}">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100 border-success">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <div class="mb-3">
+                            <i class="bi bi-clock-history fs-1 text-success"></i>
+                        </div>
+
+                        <h5 class="card-title">Appointments Management</h5>
+                        <p class="card-text text-muted">
+                            Generate time slots for employees
+                        </p>
+
+                        <a th:href="@{/admin/appointments/generate}" class="btn btn-success mt-auto">
+                            <i class="bi bi-gear-fill"></i> Manage Slots
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                        <h5 class="mb-0">Request Types</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTypeModal">
+                            +New type
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="type : ${requestTypes}">
+                                    <td>
+                                        <div class="fw-bold" th:text="${type.name}">Name</div>
+                                        <small class="text-muted" th:text="${type.description}">Desc</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${type.department.name}">Dept</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${type.active}" class="badge bg-success">Ενεργό</span>
+                                        <span th:unless="${type.active}" class="badge bg-danger">Ανενεργό</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <form th:action="@{/admin/types/toggle}" method="post" class="d-inline">
+                                                <input type="hidden" name="id" th:value="${type.id}">
+                                                <button type="submit" class="btn btn-outline-warning"
+                                                        th:text="${type.active} ? 'Disable' : 'Enable'">
+                                                    Toggle
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(requestTypes)}">
+                                    <td colspan="4" class="text-center py-4 text-muted">No requests type were found.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                        <h5 class="mb-0">Departments</h5>
+                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addDeptModal">
+                            + New
+                        </button>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div th:each="dept : ${departments}" class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold" th:text="${dept.name}">Department Name</div>
+                                <small class="text-muted" th:text="${dept.workingHours != null} ? ${dept.workingHours} : 'Not set'">08:00 - 14:00</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-dark"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#scheduleModal"
+                                    th:data-dept-id="${dept.id}"
+                                    onclick="setDeptId(this.getAttribute('data-dept-id'))">
+                                ⚙Setup
+                            </button>
+                        </div>
+                        <div class="list-group-item text-center text-muted" th:if="${#lists.isEmpty(departments)}">
+                            No departments found. <br> Click "+ New" to add one.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> </div> <div class="modal fade" id="addTypeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/admin/types/add}" method="post" th:object="${requestTypeForm}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add new type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" th:field="*{name}"
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SLA Days</label>
+                        <input type="number" class="form-control" th:field="*{slaDays}" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <select class="form-select" th:field="*{departmentId}"
+                                th:classappend="${#fields.hasErrors('departmentId')} ? 'is-invalid' : ''">
+                            <option value="" disabled selected>Select Department...</option>
+                            <option th:each="dept : ${departments}"
+                                    th:value="${dept.id}"
+                                    th:text="${dept.name}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/admin/departments/schedule}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ορισμός Ωραρίου (Set Time)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="departmentId" id="modalDeptId">
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Start</label>
+                                <input type="time" name="startTime" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">End</label>
+                                <input type="time" name="endTime" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save Schedule</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addDeptModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/admin/departments/add}" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Νέο Τμήμα (New Dept)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. KEP" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" name="startTime" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">End Time</label>
+                                <input type="time" name="endTime" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setDeptId(id) {
+            document.getElementById('modalDeptId').value = id;
+        }
+    </script>
+
+</section>
+
+</body>
+</html>

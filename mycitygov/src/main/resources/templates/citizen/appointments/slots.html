@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="el"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+<head><title>Select Time</title></head>
+<body>
+<section layout:fragment="main">
+    <div class="container py-5">
+        <div class="text-center mb-4">
+            <h2>Select Time</h2>
+            <h4 class="text-muted" th:text="${#temporals.format(selectedDate, 'dd-MM-yyyy')}">12-01-2026</h4>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+
+                        <div th:if="${#lists.isEmpty(slots)}" class="alert alert-warning text-center my-3">
+                            <h4>No available time slots</h4>
+                            <p>All appointments for this date are fully booked or not yet released.</p>
+                            <p class="mb-0">Please go back and select another date.</p>
+                        </div>
+
+                        <div th:if="${not #lists.isEmpty(slots)}" class="table-responsive">
+                            <table class="table table-hover align-middle text-center">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="slot : ${slots}">
+                                    <td>
+                                            <span class="fs-5 fw-bold text-dark"
+                                                  th:text="${slot.startTime} + ' - ' + ${slot.endTime}">09:00 - 09:15</span>
+                                    </td>
+                                    <td>
+                                        <form th:action="@{/citizen/appointments/book}" method="post">
+                                            <input type="hidden" name="slotId" th:value="${slot.id}">
+                                            <button type="submit" class="btn btn-success btn-sm px-4">
+                                                Book Now
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a th:href="@{/citizen/appointments/dates(deptId=${deptId})}" class="btn btn-secondary">
+                        Back to Dates
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="el" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{base}"
+      xmlns:layout="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Reply to Request</title>
+</head>
+<body>
+<section layout:fragment="main">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+
+                <div class="card shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">⚠Action Required</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="alert alert-light border">
+                            <strong>Employee Message:</strong>
+                            <p class="mb-0 mt-2 fst-italic" th:text="${request.comments}">Please upload...</p>
+                        </div>
+
+                        <hr>
+
+                        <h5 class="mb-3">Your Response</h5>
+
+                        <form th:action="@{'/citizen/requests/' + ${request.id} + '/reply'}"
+                              method="post" enctype="multipart/form-data">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Explanation/Details</label>
+                                <textarea name="explanation" class="form-control" rows="4"
+                                          placeholder="Provide the requested information here..." required></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Upload Document (Optional)</label>
+                                <input type="file" name="attachment" class="form-control">
+                                <div class="form-text">If the employee asked for a document, upload it here.</div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/citizen/my-requests}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    Submit Reply
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

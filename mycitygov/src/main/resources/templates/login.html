@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+
+<head>
+    <title>Login - MyCityGov</title>
+</head>
+
+<body>
+
+<header layout:fragment="header">
+    <h1>MyCityGov <small class="text-muted">/ Login</small></h1>
+</header>
+
+<section layout:fragment="main">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+
+            <div class="p-4 border rounded shadow-sm bg-white">
+
+                <form th:action="@{/login}" method="post">
+
+                    <div class="alert alert-success text-center" role="alert" th:if="${message}">
+                        <span th:text="${message}"></span>
+                    </div>
+
+                    <div class="alert alert-danger text-center" role="alert" th:if="${param.error} or ${error}">
+                        Invalid email or password.
+                    </div>
+                    <div th:if="${errorMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="bi bi-cone-striped"></i> <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">Email Address</label>
+                        <input id="email" name="email" type="email" class="form-control" placeholder="name@example.com" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold">Password</label>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Log in</button>
+                    </div>
+
+                    <div class="text-center">
+                        <p>New to MyCityGov? <a th:href="@{/register}" class="text-decoration-none">Create an account</a></p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="el"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base}">
+<head><title>Overdue Report</title></head>
+<body>
+<section layout:fragment="main">
+    <div class="container py-4">
+
+        <h2 class="mb-4 text-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span th:text="${reportTitle}">Overdue Requests</span>
+        </h2>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="bg-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Citizen</th>
+                        <th>Submission Date</th>
+                        <th>SLA Limit</th>
+                        <th>Delay</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="req : ${requests}">
+                        <td th:text="${req.id}">1</td>
+                        <td th:text="${req.requestType.name}">Certificate</td>
+                        <td th:text="${req.citizen.firstName} + ' ' + ${req.citizen.lastName}">Name</td>
+
+                        <td th:text="${#temporals.format(req.submissionDate, 'dd/MM/yyyy')}">01/01/2026</td>
+
+                        <td class="fw-bold text-center">
+                            <span th:text="${req.requestType.slaDays}">5</span> days
+                        </td>
+
+                        <td class="text-danger fw-bold">
+                                <span th:with="daysOpen=${T(java.time.temporal.ChronoUnit).DAYS.between(req.submissionDate, T(java.time.LocalDate).now())}">
+                                    +<span th:text="${daysOpen - req.requestType.slaDays}">2</span> days overdue
+                                </span>
+                        </td>
+
+                        <td>
+                            <span class="badge bg-warning text-dark" th:text="${req.status}">IN_PROGRESS</span>
+                        </td>
+
+                        <td>
+                            <a th:href="@{'/admin/requests/' + ${req.id}}" class="btn btn-sm btn-outline-primary">Open</a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(requests)}">
+                        <td colspan="8" class="text-center py-4 text-success"> Great! No overdue requests found.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
