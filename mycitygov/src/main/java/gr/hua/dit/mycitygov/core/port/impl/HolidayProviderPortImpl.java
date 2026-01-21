@@ -23,7 +23,7 @@ public class HolidayProviderPortImpl implements HolidayProviderPort {
     public boolean isHoliday(LocalDate date){
         try {
             List<PublicHolidayDto> holidays = restClient.get()
-                    .uri(API_URL, date.getYear(), "GR") // GR = Greece
+                    .uri(API_URL, date.getYear(), "GR")
                     .retrieve()
                     .body(new ParameterizedTypeReference<List<PublicHolidayDto>>() {});
 

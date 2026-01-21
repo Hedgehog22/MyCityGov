@@ -16,14 +16,7 @@
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-body">
-
-                        <div th:if="${#lists.isEmpty(slots)}" class="alert alert-warning text-center my-3">
-                            <h4>No available time slots</h4>
-                            <p>All appointments for this date are fully booked or not yet released.</p>
-                            <p class="mb-0">Please go back and select another date.</p>
-                        </div>
-
-                        <div th:if="${not #lists.isEmpty(slots)}" class="table-responsive">
+                        <div th:if="${not times.isEmpty()}" class="table-responsive">
                             <table class="table table-hover align-middle text-center">
                                 <thead class="table-light">
                                 <tr>
@@ -32,14 +25,15 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="slot : ${slots}">
+                                <tr th:each="time : ${times}">
                                     <td>
-                                            <span class="fs-5 fw-bold text-dark"
-                                                  th:text="${slot.startTime} + ' - ' + ${slot.endTime}">09:00 - 09:15</span>
+                                        <span th:text="${time}">10:00</span>
                                     </td>
                                     <td>
                                         <form th:action="@{/citizen/appointments/book}" method="post">
-                                            <input type="hidden" name="slotId" th:value="${slot.id}">
+                                            <input type="hidden" name="deptId" th:value="${deptId}"/>
+                                            <input type="hidden" name="date" th:value="${selectedDate}"/>
+                                            <input type="hidden" name="time" th:value="${time}"/>
                                             <button type="submit" class="btn btn-success btn-sm px-4">
                                                 Book Now
                                             </button>
@@ -49,7 +43,11 @@
                                 </tbody>
                             </table>
                         </div>
-
+                        <div th:if="${times.isEmpty()}" class="alert alert-warning text-center my-3">
+                            <h4>No available time slots</h4>
+                            <p>All appointments for this date are fully booked or not yet released.</p>
+                            <p class="mb-0">Please go back and select another date.</p>
+                        </div>
                     </div>
                 </div>
 

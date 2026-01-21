@@ -56,6 +56,9 @@ public class Request {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Column(name = "sla_breached", nullable = false)
+    private boolean slaBreached = false;
+
     //RELATIONSHIPS
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -102,6 +105,14 @@ public class Request {
         this.description = description;
     }
     // --- Getters & Setters ---
+
+    public boolean isSlaBreached() {
+        return slaBreached;
+    }
+
+    public void setSlaBreached(boolean slaBreached) {
+        this.slaBreached = slaBreached;
+    }
 
     public Long getId() {
         return id;

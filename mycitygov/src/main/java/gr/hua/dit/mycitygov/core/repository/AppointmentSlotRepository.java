@@ -1,6 +1,7 @@
 package gr.hua.dit.mycitygov.core.repository;
 
 import gr.hua.dit.mycitygov.core.model.AppointmentSlot;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +17,15 @@ import java.util.Optional;
 
 @Repository
 public interface AppointmentSlotRepository extends JpaRepository<AppointmentSlot, Long> {
+    @Query("SELECT DISTINCT s.startTime FROM AppointmentSlot s " +
+            "WHERE s.employee.department.id = :deptId " +
+            "AND s.date = :date " +
+            "AND s.isAvailable = true " +
+            "ORDER BY s.startTime")
+    List<LocalTime> findUniqueAvailableTimes(@Param("deptId") Long deptId, @Param("date") LocalDate date);
+
+    List<AppointmentSlot> findByEmployee_Department_IdAndDateAndStartTimeAndIsAvailableTrue(Long deptId, LocalDate date, LocalTime startTime);
+
     @Query("SELECT DISTINCT s.date FROM AppointmentSlot s " +
             "WHERE s.employee.department.id = :deptId " +
             "AND s.isAvailable = true " +
@@ -31,15 +41,9 @@ public interface AppointmentSlotRepository extends JpaRepository<AppointmentSlot
     List<AppointmentSlot> findAvailableSlotsByDepartmentAndDate(@Param("deptId") Long deptId,
                                                                 @Param("date") LocalDate date);
 
-    @Query("SELECT s FROM AppointmentSlot s " +
-            "WHERE s.employee.department.id = :deptId " +
-            "AND s.isAvailable = true " +
-            "AND s.date >= CURRENT_DATE " +
-            "ORDER BY s.date ASC, s.startTime ASC")
-    List<AppointmentSlot> findAvailableSlotsByDepartment(@Param("deptId") Long deptId);
-
+    @NotNull
     @Lock(LockModeType.OPTIMISTIC)
-    Optional<AppointmentSlot> findById(Long id);
+    Optional<AppointmentSlot> findById(@NotNull Long id);
     List<AppointmentSlot> findAllByEmployeeIdAndDate(Long employeeId, LocalDate date);
     boolean existsByEmployeeIdAndDateAndStartTime(Long employeeId, LocalDate date, LocalTime startTime);
 }

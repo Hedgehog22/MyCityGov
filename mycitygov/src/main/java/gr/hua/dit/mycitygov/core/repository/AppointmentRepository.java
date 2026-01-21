@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
-    List<Appointment> findAllBySlotEmployeeIdAndSlotDateOrderBySlotStartTimeAsc(Long employeeId, LocalDate date);
+  //  List<Appointment> findAllBySlotEmployeeIdAndSlotDateOrderBySlotStartTimeAsc(Long employeeId, LocalDate date);
     @Query("SELECT a FROM Appointment a " +
             "JOIN FETCH a.slot s " +
             "JOIN FETCH s.employee e " +

@@ -1,9 +1,6 @@
 package gr.hua.dit.mycitygov.core.service.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public class UserRegistrationDto {
 
@@ -27,6 +24,8 @@ public class UserRegistrationDto {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^\\+?[0-9]{10,13}$", message = "Invalid phone number format")
     private String phoneNumber;
 
     @NotEmpty(message = "Password is required")

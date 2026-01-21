@@ -12,8 +12,10 @@ public class DataInitializer {
     @Bean
     CommandLineRunner initData(GovCitizenRepository repository) {
         return args -> {
-            repository.save(new GovCitizen("valid-token-111", "123456789", "01019012345", "Nikoletta", "Papadopoulou"));
-            repository.save(new GovCitizen("valid-token-222", "987654321", "02028554321", "Yiannis", "Ioannidis"));
+            if(repository.findByGovToken("valid-token-111") == null)
+             repository.save(new GovCitizen("valid-token-111", "123456789", "01019012345", "Nikoletta", "Papadopoulou"));
+            if(repository.findByGovToken("valid-token-222") == null)
+             repository.save(new GovCitizen("valid-token-222", "987654321", "02028554321", "Yiannis", "Ioannidis"));
             System.out.println("Token 1: valid-token-111");
             System.out.println("Token 2: valid-token-222");
         };

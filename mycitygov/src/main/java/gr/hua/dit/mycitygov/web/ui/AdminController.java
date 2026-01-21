@@ -1,6 +1,8 @@
 package gr.hua.dit.mycitygov.web.ui;
 
 import gr.hua.dit.mycitygov.core.model.Request;
+import gr.hua.dit.mycitygov.core.model.RequestStatus;
+import gr.hua.dit.mycitygov.core.repository.RequestRepository;
 import gr.hua.dit.mycitygov.core.service.UserService;
 import gr.hua.dit.mycitygov.core.service.impl.DepartmentService;
 import gr.hua.dit.mycitygov.core.service.impl.RequestService;
@@ -23,11 +25,11 @@ public class AdminController {
     private final UserService userService;
     private final RequestTypeService requestTypeService;
     private final DepartmentService departmentService;
-    private final RequestService requestService;
+    private final RequestRepository requestService;
 
     public AdminController(UserService userService,
                            RequestTypeService requestTypeService,
-                           DepartmentService departmentService, RequestService requestService) {
+                           DepartmentService departmentService, RequestRepository requestService) {
         this.userService = userService;
         this.requestTypeService = requestTypeService;
         this.departmentService = departmentService;
@@ -36,14 +38,25 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
+        long totalRequests = requestService.count();
+
+        long submitted = requestService.countByStatus(RequestStatus.SUBMITTED);
+        long inProgress = requestService.countByStatus(RequestStatus.IN_PROGRESS);
+        long done = requestService.countByStatus(RequestStatus.APPROVED) + requestService.countByStatus(RequestStatus.REJECTED);
+        long overdueCount = requestService.countBySlaBreachedTrue();
 
         model.addAttribute("totalCitizens", userService.countAllCitizens());
-        model.addAttribute("totalRequests", requestTypeService.countAllRequests()); //TO DO: more statistic
+        model.addAttribute("totalRequestsType", requestTypeService.countAllRequests()); //TO DO: more statistic
         model.addAttribute("activeServices", departmentService.countActiveDepartments());
+        model.addAttribute("cntTotalRequests", totalRequests);
+        model.addAttribute("cntPending", submitted);
+        model.addAttribute("cntInProgress", inProgress);
+        model.addAttribute("cntDone", done);
 
         model.addAttribute("requestTypes", requestTypeService.findAll());
         model.addAttribute("departments", departmentService.findAll());
 
+        model.addAttribute("overdueCount", overdueCount);
 
         if (!model.containsAttribute("requestTypeForm")) {
             model.addAttribute("requestTypeForm", new RequestTypeForm(null, null, null, null));
@@ -134,9 +147,9 @@ public class AdminController {
 
     @GetMapping("/reports/overdue")
     public String showOverdueReports(Model model) {
-        List<Request> overdueList = requestService.getOverdueRequests();
+        List<Request> overdueList = requestService.findBySlaBreachedTrue();
         model.addAttribute("requests", overdueList);
-        model.addAttribute("reportTitle", "!Overdue Requests!");
+       // model.addAttribute("reportTitle", "!Overdue Requests!");
         return "admin/requests-report";
     }
 

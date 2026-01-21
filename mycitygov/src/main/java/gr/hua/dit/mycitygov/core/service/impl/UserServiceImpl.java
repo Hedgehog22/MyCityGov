@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final GovIdentityPort govIdentityPort; // Наш порт до Mock Service
+    private final GovIdentityPort govIdentityPort;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, GovIdentityPort govIdentityPort) {
         this.userRepository = userRepository;
@@ -33,7 +33,6 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("email is already used.");
         }
-        // Перевіряємо АФМ/АМКА (які ми отримали з Уряду)
         if (userRepository.existsByAfm(trustedData.afm())) {
             throw new RuntimeException("AFM is already used.");
         }

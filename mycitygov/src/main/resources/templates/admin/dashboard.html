@@ -10,17 +10,6 @@
 
 <body>
 
-<header layout:fragment="header" class="bg-dark text-white p-4">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="h3 mb-0">Admin Dashboard</h1>
-        </div>
-        <div>
-            <span class="badge bg-light text-dark">Admin Access</span>
-        </div>
-    </div>
-</header>
-
 <section layout:fragment="main">
     <div class="container py-4">
 
@@ -48,18 +37,44 @@
             <div class="col-md-3">
                 <div class="card shadow-sm border-start border-4 border-success h-100">
                     <div class="card-body">
-                        <div class="text-muted small text-uppercase fw-bold">Requests</div>
-                        <div class="h2 mb-0 fw-bold" th:text="${totalRequests}">0</div>
+                        <div class="text-muted small text-uppercase fw-bold">Requests Type</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${totalRequestsType}">0</div>
                     </div>
                 </div>
             </div>
-            <!--TO DO STATISTICS-->
 
             <div class="col-md-3">
                 <div class="card shadow-sm border-start border-4 border-info h-100">
                     <div class="card-body">
-                        <div class="text-muted small text-uppercase fw-bold">Services</div>
-                        <div class="h2 mb-0 fw-bold" th:text="${activeServices}">0</div>
+                        <div class="text-muted small text-uppercase fw-bold">Requests</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${cntTotalRequests}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-start border-4 border-info h-100">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-bold">Pending requests</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${cntPending}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-start border-4 border-info h-100">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-bold">Requests in progress</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${cntInProgress}">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card shadow-sm border-start border-4 border-info h-100">
+                    <div class="card-body">
+                        <div class="text-muted small text-uppercase fw-bold">Done requests</div>
+                        <div class="h2 mb-0 fw-bold" th:text="${cntDone}">0</div>
                     </div>
                 </div>
             </div>
@@ -99,7 +114,6 @@
                                     <th>Title</th>
                                     <th>Department</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -112,8 +126,8 @@
                                         <span class="badge bg-secondary" th:text="${type.department.name}">Dept</span>
                                     </td>
                                     <td>
-                                        <span th:if="${type.active}" class="badge bg-success">Ενεργό</span>
-                                        <span th:unless="${type.active}" class="badge bg-danger">Ανενεργό</span>
+                                        <span th:if="${type.active}" class="badge bg-success">Active</span>
+                                        <span th:unless="${type.active}" class="badge bg-danger">Inactive</span>
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
@@ -136,6 +150,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
@@ -155,7 +170,7 @@
                                     data-bs-target="#scheduleModal"
                                     th:data-dept-id="${dept.id}"
                                     onclick="setDeptId(this.getAttribute('data-dept-id'))">
-                                ⚙Setup
+                                +Setup
                             </button>
                         </div>
                         <div class="list-group-item text-center text-muted" th:if="${#lists.isEmpty(departments)}">
@@ -164,7 +179,37 @@
                     </div>
                 </div>
             </div>
-        </div> </div> <div class="modal fade" id="addTypeModal" tabindex="-1" aria-hidden="true">
+
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm h-100"
+                     th:classappend="${overdueCount > 0 ? 'bg-danger text-white' : 'bg-success text-white'}">
+
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-0">SLA Violations</h6>
+                                <small th:if="${overdueCount == 0}">All good!</small>
+                                <small th:if="${overdueCount > 0}">Action needed!</small>
+                            </div>
+                            <i class="bi bi-clock-history fs-1 opacity-50"></i>
+                        </div>
+
+                        <div class="mt-3">
+                            <span class="display-6 fw-bold" th:text="${overdueCount}">0</span>
+                            <span class="fs-6">requests</span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-0">
+                        <a th:href="@{/admin/reports/overdue}" class="text-white text-decoration-none stretched-link">
+                            View Report <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addTypeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form th:action="@{/admin/types/add}" method="post" th:object="${requestTypeForm}">
@@ -212,7 +257,7 @@
             <div class="modal-content">
                 <form th:action="@{/admin/departments/schedule}" method="post">
                     <div class="modal-header">
-                        <h5 class="modal-title">Ορισμός Ωραρίου (Set Time)</h5>
+                        <h5 class="modal-title">Set Time</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -241,7 +286,7 @@
             <div class="modal-content">
                 <form th:action="@{/admin/departments/add}" method="post">
                     <div class="modal-header">
-                        <h5 class="modal-title">Νέο Τμήμα (New Dept)</h5>
+                        <h5 class="modal-title">New Dept</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -268,6 +313,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
         function setDeptId(id) {

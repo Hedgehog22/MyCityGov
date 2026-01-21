@@ -10,10 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RequestService {
@@ -46,7 +43,6 @@ public class RequestService {
 
         RequestType type = requestTypeRepository.findById(requestTypeId).orElseThrow(() -> new RuntimeException("Request Type not found"));
 
-        // ПЕРЕВІРКА 1: Чи цей тип заявки взагалі активний? (Захист від хакерів)
         if (!type.getActive()) {
             throw new RuntimeException("this type of request is inactive!");
         }
@@ -75,27 +71,6 @@ public class RequestService {
             );
             attachmentRepository.save(attachment);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public List<Request> getOverdueRequests() {
-        List<Request> activeRequests = requestRepository.findAll().stream()
-                .filter(r -> r.getStatus() != RequestStatus.APPROVED &&
-                        r.getStatus() != RequestStatus.REJECTED &&
-                        r.getStatus() != RequestStatus.CANCELLED)
-                .collect(Collectors.toList());
-
-        LocalDate today = LocalDate.now();
-
-        return activeRequests.stream()
-                .filter(req -> {
-                    long daysOpen = ChronoUnit.DAYS.between(req.getSubmissionDate(), today);
-
-                    int limit = (req.getRequestType().getSlaDays() != null)
-                            ? req.getRequestType().getSlaDays()
-                            : 7; // if sla null
-                    return daysOpen > limit;})
-                .collect(Collectors.toList());
     }
 
     @Transactional

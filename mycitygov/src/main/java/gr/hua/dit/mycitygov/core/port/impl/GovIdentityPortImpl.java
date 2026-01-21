@@ -48,16 +48,17 @@ public class GovIdentityPortImpl implements GovIdentityPort {
     @Override
     public boolean isServiceAvailable() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(2000); // 2000 ms = 2 sec
+        factory.setConnectTimeout(2000); // 2000 ms
         factory.setReadTimeout(2000);
 
-        RestTemplate restTemplate = new RestTemplate(factory);
+        RestTemplate checkTemplate = new RestTemplate(factory);
 
         try {
-            restTemplate.headForHeaders(govApiUrl);
+            String healthCheckUrl = "http://localhost:8081/auth/login";
+            checkTemplate.getForEntity(healthCheckUrl, String.class);
             return true; //service alive
         } catch (RestClientException e) {
-            System.out.println("Gov Service is down: " + e.getMessage());
+            LOGGER.error("Gov Service is down: {}", e.getMessage());
             return false;
         }
     }

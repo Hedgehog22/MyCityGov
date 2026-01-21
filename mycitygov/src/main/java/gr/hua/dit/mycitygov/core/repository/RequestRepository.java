@@ -21,7 +21,11 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findByEmployeeId(Long employeeId);
 
-    long countByStatus(RequestStatus status); // TO DO: for admin statistic
+    List<Request> findByStatusIn(List<RequestStatus> statuses);
+    List<Request> findBySlaBreachedTrue();
+    long countBySlaBreachedTrue();
+
+    long countByStatus(RequestStatus status);
 
     Request findByProtocolNumber(String protocolNumber); // TO DO: searching of request
 }

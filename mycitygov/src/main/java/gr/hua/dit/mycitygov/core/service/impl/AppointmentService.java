@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -39,6 +40,11 @@ public class AppointmentService {
     public List<AppointmentSlot> getSlotsForDate(Long deptId, LocalDate date) {
         return slotRepository.findAvailableSlotsByDepartmentAndDate(deptId, date);
     }
+
+    public List<LocalTime> getAvailableHours(Long deptId, LocalDate date) {
+        return slotRepository.findUniqueAvailableTimes(deptId, date);
+    }
+
     @Transactional
     public void generateSlotsForRange(Long employeeId, LocalDate startDate, LocalDate endDate,
                                       LocalTime startTime, LocalTime endTime,
@@ -94,7 +100,7 @@ public class AppointmentService {
 
     @Transactional
     public void deleteSlotsForDay(Long employeeId, LocalDate date) {
-        List<AppointmentSlot> slots = slotRepository.findAllByEmployeeIdAndDate(employeeId, date); // Цей метод треба додати в репозиторій
+        List<AppointmentSlot> slots = slotRepository.findAllByEmployeeIdAndDate(employeeId, date);
 
         for (AppointmentSlot slot : slots) {
             if (!slot.getIsAvailable()) {
@@ -104,31 +110,32 @@ public class AppointmentService {
         slotRepository.deleteAll(slots);
     }
     @Transactional
-    public void bookAppointment(Long slotId, String userEmail) {
-        AppointmentSlot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new RuntimeException("Slot not found"));
-        if (holidayProvider.isHoliday(slot.getDate())) {
+    public void bookAppointment(Long deptId, LocalDate date, LocalTime time,  String userEmail) {
+        List<AppointmentSlot> pool = slotRepository.findByEmployee_Department_IdAndDateAndStartTimeAndIsAvailableTrue(deptId, date, time);
+        if (holidayProvider.isHoliday(date)){
             throw new RuntimeException("Cannot book an appointment on a Holiday!");
         }
 
-        if (!slot.getIsAvailable()) {
+        if (pool.isEmpty()) {
             throw new RuntimeException("Slot is already booked or unavailable!");
         }
 
-        User citizen = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Random random = new Random();
+        AppointmentSlot selectedSlot = pool.get(random.nextInt(pool.size()));
+
+        User citizen = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
 
         Appointment appointment = new Appointment();
-        appointment.setSlot(slot);
+        appointment.setSlot(selectedSlot);
         appointment.setCitizen(citizen);
 
         appointment.setStatus(AppointmentStatus.BOOKED);
 
         appointment.setReferenceCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
 
-        slot.setIsAvailable(false);
+        selectedSlot.setIsAvailable(false);
 
-        slotRepository.save(slot);
+        slotRepository.save(selectedSlot);
         appointmentRepository.save(appointment);
 
         String rawPhone = citizen.getPhoneNumber();
@@ -141,7 +148,7 @@ public class AppointmentService {
             String msg = "Your appointment is confirmed! Ref: " + appointment.getReferenceCode();
             notificationProvider.sendNotification(formattedPhone, msg);
         } else {
-            System.out.println("⚠Warning: SMS verification failed, but appointment is booked.");
+            System.out.println("Warning: SMS verification failed, but appointment is booked.");
         }
     }
 

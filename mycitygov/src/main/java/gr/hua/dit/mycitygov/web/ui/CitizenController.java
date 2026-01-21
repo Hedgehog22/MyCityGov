@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Controller
@@ -122,19 +124,20 @@ public class CitizenController {
     }
 
     @PostMapping("/appointments/book")
-    public String bookAppointment(@RequestParam("slotId") Long slotId,
+    public String bookAppointment(@RequestParam Long deptId,
+                                  @RequestParam LocalDate date,
+                                  @RequestParam LocalTime time,
                                   @AuthenticationPrincipal UserDetails userDetails,
                                   RedirectAttributes redirectAttributes) {
         try {
-            appointmentService.bookAppointment(slotId, userDetails.getUsername());
+            appointmentService.bookAppointment(deptId, date, time, userDetails.getUsername());
             redirectAttributes.addFlashAttribute("successMessage", "Appointment booked successfully!");
-
+            return "redirect:/citizen/appointments/my";
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Error: " + e.getMessage());
-            return "redirect:/citizen/appointments";
+            return "redirect:/citizen/appointments/slots?deptId=\" + deptId + \"&date=\" + date;";
         }
-        return "redirect:/citizen/appointments/my";
     }
 
 
@@ -144,9 +147,9 @@ public class CitizenController {
                                     RedirectAttributes redirectAttributes) {
         try {
             appointmentService.cancelAppointmentByCitizen(id, userDetails.getUsername());
-            redirectAttributes.addFlashAttribute("successMessage", "✅ Appointment cancelled successfully. The slot is now free.");
+            redirectAttributes.addFlashAttribute("successMessage", "Appointment cancelled successfully. The slot is now free.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "❌ Error cancelling appointment: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error cancelling appointment: " + e.getMessage());
         }
         return "redirect:/citizen/appointments/my";
     }

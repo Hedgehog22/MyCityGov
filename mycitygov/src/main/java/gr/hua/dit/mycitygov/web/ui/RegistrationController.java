@@ -4,7 +4,6 @@ import gr.hua.dit.mycitygov.core.port.GovIdentityPort;
 import gr.hua.dit.mycitygov.core.service.UserService;
 import gr.hua.dit.mycitygov.core.service.model.UserRegistrationDto;
 import jakarta.validation.Valid;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -55,7 +54,7 @@ public class RegistrationController {
 
         if (!govIdentityPort.isServiceAvailable()) {
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "⚠Registration is currently unavailable due to maintenance. Please try again later.");
+                    "Registration is currently unavailable due to maintenance. Please try again later.");
             return "redirect:/login";
         }
 

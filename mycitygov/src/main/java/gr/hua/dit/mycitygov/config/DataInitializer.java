@@ -90,7 +90,6 @@ public class DataInitializer implements CommandLineRunner {
             user.setRole(role);
             user.setDepartment(department);
 
-            // Optional: fake phone
             if (role == Role.CITIZEN) {
                 user.setPhoneNumber("+306900000000");
             }

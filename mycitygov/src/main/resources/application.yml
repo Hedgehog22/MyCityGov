@@ -34,3 +34,11 @@ twilio:
 gov:
   api:
     url: http://localhost:8081/api/external/gov-login
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
+    include-binding-errors: always
+    include-exception: true

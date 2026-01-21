@@ -1,6 +1,5 @@
 package gr.hua.dit.mycitygov.web.ui;
 import gr.hua.dit.mycitygov.core.model.Appointment;
-import gr.hua.dit.mycitygov.core.model.AppointmentSlot;
 import gr.hua.dit.mycitygov.core.repository.DepartmentRepository;
 import gr.hua.dit.mycitygov.core.service.impl.AppointmentService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Controller
@@ -48,9 +48,9 @@ public class AppointmentController {
                             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                             Model model) {
 
-        List<AppointmentSlot> slots = appointmentService.getSlotsForDate(deptId, date);
+        List<LocalTime> availableTimes = appointmentService.getAvailableHours(deptId, date);
 
-        model.addAttribute("slots", slots);
+        model.addAttribute("times", availableTimes);
         model.addAttribute("selectedDate", date);
         model.addAttribute("deptId", deptId);
 

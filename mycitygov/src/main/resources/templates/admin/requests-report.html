@@ -24,8 +24,8 @@
                         <th>Submission Date</th>
                         <th>SLA Limit</th>
                         <th>Delay</th>
+                        <th>Assigned To</th>
                         <th>Status</th>
-                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -41,22 +41,30 @@
                         </td>
 
                         <td class="text-danger fw-bold">
-                                <span th:with="daysOpen=${T(java.time.temporal.ChronoUnit).DAYS.between(req.submissionDate, T(java.time.LocalDate).now())}">
+                                <span th:with="daysOpen=${T(java.time.temporal.ChronoUnit).DAYS.between(req.submissionDate, T(java.time.Instant).now())}">
                                     +<span th:text="${daysOpen - req.requestType.slaDays}">2</span> days overdue
                                 </span>
+                        </td>
+
+                        <td>
+                            <span th:if="${req.employee != null}"
+                                  th:text="${req.employee.firstName + ' ' + req.employee.lastName}"
+                                  class="text-primary fw-bold">
+                                  Peter Pen
+                            </span>
+                            <span th:if="${req.employee == null}" class="badge bg-secondary">
+                                  Unassigned
+                            </span>
                         </td>
 
                         <td>
                             <span class="badge bg-warning text-dark" th:text="${req.status}">IN_PROGRESS</span>
                         </td>
 
-                        <td>
-                            <a th:href="@{'/admin/requests/' + ${req.id}}" class="btn btn-sm btn-outline-primary">Open</a>
-                        </td>
                     </tr>
 
                     <tr th:if="${#lists.isEmpty(requests)}">
-                        <td colspan="8" class="text-center py-4 text-success"> Great! No overdue requests found.
+                        <td colspan="9" class="text-center py-4 text-success"> Great! No overdue requests found.
                         </td>
                     </tr>
                     </tbody>
